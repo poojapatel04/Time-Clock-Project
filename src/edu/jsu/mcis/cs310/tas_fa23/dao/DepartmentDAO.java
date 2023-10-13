@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package edu.jsu.mcis.cs310.tas_fa23.dao;
 
 import edu.jsu.mcis.cs310.tas_fa23.Department; //Doesn't exist yet [Update when Department.java is added]
@@ -28,7 +24,7 @@ public class DepartmentDAO {
     
     /*
 
-    TODO [JOSHUA SMITH]: 
+    TODO [APPENDED BY JOSHUA SMITH]: 
     
     ✔️ CREATED GETDEPARTMENTDAO() METHOD IN DAOFACTORY.JAVA
     ✔️ CHANGED NAMES AROUND IN GLOBAL VARIABLE FIELD
@@ -40,7 +36,7 @@ public class DepartmentDAO {
 
     */
 
-    public Department find(String id) {
+    public Department find(int id) {
 
         Department department = null;
 
@@ -54,7 +50,7 @@ public class DepartmentDAO {
             if (conn.isValid(0)) {
 
                 ps = conn.prepareStatement(QUERY_FIND);
-                ps.setString(1, id);
+                ps.setString(1, String.valueOf(id));
 
                 boolean hasresults = ps.execute();
 
@@ -65,7 +61,7 @@ public class DepartmentDAO {
                     while (rs.next()) {
 
                         String description = rs.getString("description");
-                        String termid = rs.getString("terminalid");
+                        int termid = rs.getInt("terminalid");
                         department = new Department(id, description, termid);
 
                     }
