@@ -12,29 +12,31 @@ public class Employee {
     private Badge theBadge;
     private Department theDepartment;
     //private final Shift theShift;
+    private EmployeeType workType;
+    
 
-    public Employee(String id, String description) {
+    public Employee(int id, String firstName, String middleName, String lastName, Badge theBadge, Department theDepartment, EmployeeType workType) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.middleName = middleName;
         this.id = id;
+        this.theBadge = theBadge;
+        this.theDepartment = theDepartment;
+        this.workType = workType;
     }
 
     public int getId() {
         return id;
     }
 
-    public String getDescription() {
-        return description;
+    public String getFirstName() {
+        return firstName;
     }
 
     @Override
     public String toString() {
 
         StringBuilder s = new StringBuilder();
-
-        s.append('#').append(id).append(' ');
-        s.append('(').append(description).append(')');
 
         return s.toString();
 

@@ -1,23 +1,15 @@
 package edu.jsu.mcis.cs310.tas_fa23;
 
 
+import static java.lang.Math.abs;
+import java.lang.reflect.Array;
 import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
 
-
-
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
-
-
-
-
 /**
  *
- * @author aseel
+ * @author Joshua Smith
  */
 public class Shift{
     private int shiftid;
@@ -30,6 +22,7 @@ public class Shift{
     private LocalTime lunchstart;
     private LocalTime lunchstop;
     private int lunchThreshold;
+    private Map<String, Object> shiftInfo;
     
     public Shift(int shiftid, String desc, LocalTime shiftstart, LocalTime shiftstop, int roundInterval, 
                  int gracePeriod, int dockPenalty, LocalTime lunchstart, LocalTime lunchstop, int lunchThreshold) {
@@ -43,49 +36,155 @@ public class Shift{
         this.lunchstart = lunchstart;
         this.lunchstop = lunchstop;
         this.lunchThreshold = lunchThreshold;
+
+        shiftInfo.put("shiftid", this.shiftid);
+        shiftInfo.put("desc", this.desc);
+        shiftInfo.put("shiftstart", this.shiftstart);
+        shiftInfo.put("shiftstop", this.shiftstop);
+        shiftInfo.put("roundInterval", this.roundInterval);
+        shiftInfo.put("gracePeriod", this.gracePeriod);
+        shiftInfo.put("dockPenalty", this.dockPenalty);
+        shiftInfo.put("lunchstart", this.lunchstart);
+        shiftInfo.put("lunchstop", this.lunchstop);
+        shiftInfo.put("lunchThreshold", this.lunchThreshold);
     }
 
+    
     public  int getShiftId (){
-        return shiftid;
-}
-    public String getDesc(){
-        return desc;
-    }
-    public LocalTime getShiftStart(){
-        return shiftstart;
-    }
-    public LocalTime getShiftStop(){
-        return shiftstop;
-        
+        return (int)shiftInfo.get("id");
     }
     
-    public Shift(Map<String, String> shiftInfo) {
-        this.shiftid = Integer.parseInt(shiftInfo.get("shiftid"));
-        this.desc = shiftInfo.get("desc");
-        this.shiftstart = LocalTime.parse(shiftInfo.get("shiftstart"));
-        this.shiftstop = LocalTime.parse(shiftInfo.get("shiftstop"));
-        this.roundInterval = Integer.parseInt(shiftInfo.get("roundinterval"));
-        this.gracePeriod = Integer.parseInt(shiftInfo.get("graceperiod"));
-        this.dockPenalty = Integer.parseInt(shiftInfo.get("dockpenalty"));
-        this.lunchstart = LocalTime.parse(shiftInfo.get("lunchstart"));
-        this.lunchstop = LocalTime.parse(shiftInfo.get("lunchstop"));
-        this.lunchThreshold = Integer.parseInt(shiftInfo.get("lunchthreshold"));
+    public String getDesc(){
+        return shiftInfo.get("description").toString();
     }
+    
+    public LocalTime getShiftStart(){
+        return (LocalTime)shiftInfo.get("shiftstart");
+    }
+    
+    public LocalTime getShiftStop(){
+        return (LocalTime)shiftInfo.get("shiftstop");
+    }
+    
+    public int getRoundInterval(){
+        return (int)shiftInfo.get("roundinterval");
+    }
+    
+    public int getGracePeriod(){
+        return (int)shiftInfo.get("graceperiod");
+    }
+    
+    public int getDockPenalty(){
+        return (int)shiftInfo.get("dockpenalty");
+    }
+    
+    public LocalTime getLunchStart(){
+        return (LocalTime)shiftInfo.get("lunchstart");
+    }
+    
+    public LocalTime getLunchStop(){
+        return (LocalTime)shiftInfo.get("lunchstop");
+    }
+    
+    public int getLunchThreshhold(){
+        return (int)shiftInfo.get("lunchthreshold");
+    }
+    
+    public int getShiftTime(){
+        
+        int[] timeStart = new int[3];
+        int[] timeEnd = new int[3];
+        int startTotal = 0;
+        int endTotal = 0;
+        int total = 0;
+        int minutesWorked = 0;
+        
+        
+        timeStart[0] = (this.getShiftStart().getHour())*60;
+        timeStart[1] = (this.getShiftStart().getMinute());
+        timeStart[2] = (this.getShiftStart().getSecond()/60);
+        startTotal = timeStart[0] + timeStart[1] + timeStart[2];
+        
+        timeEnd[0] = (this.getShiftStart().getHour())*60;
+        timeEnd[1] = (this.getShiftStart().getMinute());
+        timeEnd[2] = (this.getShiftStart().getSecond()/60);
+        endTotal = timeEnd[0] + timeEnd[1] + timeEnd[2];
+        
+        total = endTotal - startTotal;
+        
+        if (total < 0) {
+            
+            int minutesInDay = abs(total/1440);
+            
+             while (minutesInDay != 1) {
+                 
+                 minutesInDay = minutesInDay + (1/1440);
+                 minutesWorked++;
+                 
+             }
+        
+             total = minutesWorked;
+             
+        }
+        
+        
+        return total;
+    }
+    
+    public int getLunchTime(){
+        
+        int[] lunchStart = new int[3];
+        int[] lunchEnd = new int[3];
+        int startTotal = 0;
+        int endTotal = 0;
+        int total = 0;
+        int minutesWorked = 0;
+        
+        
+        lunchStart[0] = (this.getShiftStart().getHour())*60;
+        lunchStart[1] = (this.getShiftStart().getMinute());
+        lunchStart[2] = (this.getShiftStart().getSecond()/60);
+        startTotal = lunchStart[0] + lunchStart[1] + lunchStart[2];
+        
+        lunchEnd[0] = (this.getShiftStart().getHour())*60;
+        lunchEnd[1] = (this.getShiftStart().getMinute());
+        lunchEnd[2] = (this.getShiftStart().getSecond()/60);
+        endTotal = lunchEnd[0] + lunchEnd[1] + lunchEnd[2];
+        
+        total = endTotal - startTotal;
+        
+        if (total < 0) {
+            
+            long minutesInDay = abs(total/1440);
+            
+             while (minutesInDay >= 1) { //Provides leeway on if number is exactly 1
+                 
+                 minutesInDay = minutesInDay + (1/1440);
+                 minutesWorked++;
+                 
+             }
+        
+             total = minutesWorked;
+             
+        }
+        
+        
+        return total;
+    
+    }
+  
+    
     @Override
     public String toString() {
-        return "Shift{" +
-                "id=" + shiftid +
-                ", description='" + desc + '\'' +
-                ", shiftStart=" + shiftstart +
-                ", shiftStop=" + shiftstop +
-                ", roundInterval=" + roundInterval +
-                ", gracePeriod=" + gracePeriod +
-                ", dockPenalty=" + dockPenalty +
-                ", lunchStart=" + lunchstart +
-                ", lunchStop=" + lunchstop +
-                ", lunchThreshold=" + lunchThreshold +
-                '}';
+        StringBuilder s = new StringBuilder();
+        s.append(this.getDesc()).append(": ").append(this.getShiftStart())
+        .append(" - ").append(this.getShiftStop()).append(" (").append(this.getShiftTime())
+        .append(" minutes); Lunch: ").append(this.getLunchStart()).append(" - ")
+        .append(this.getLunchStop()).append(" (").append(" minutes)");
         
+        String totalStr = s.toString();
+        
+        return totalStr;
     }
      /* public static Shift createFromSQLInfo(String[] sqlInfo) {
         Map<String, String> shiftInfo = new HashMap<>();
