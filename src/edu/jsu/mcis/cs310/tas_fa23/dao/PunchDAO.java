@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
  * @author poojapatel
  */
 public class PunchDAO {
-    private static final String QUERY_FIND = "SELECT FROM event where id = ?";
+    private static final String QUERY_FIND = "SELECT * FROM event where id = ?";
     
     private final DAOFactory daoFactory;
     PunchDAO(DAOFactory daoFactory) {
