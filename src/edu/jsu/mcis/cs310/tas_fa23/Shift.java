@@ -23,71 +23,51 @@ public class Shift{
     private LocalTime lunchstop;
     private int lunchThreshold;
     private Map<String, Object> shiftInfo;
+    private final HashMap<String, Object> theMap;
     
-    public Shift(int shiftid, String desc, LocalTime shiftstart, LocalTime shiftstop, int roundInterval, 
-                 int gracePeriod, int dockPenalty, LocalTime lunchstart, LocalTime lunchstop, int lunchThreshold) {
-        this.shiftid = shiftid;
-        this.desc = desc;
-        this.shiftstart = shiftstart;
-        this.shiftstop = shiftstop;
-        this.roundInterval = roundInterval;
-        this.gracePeriod = gracePeriod;
-        this.dockPenalty = dockPenalty;
-        this.lunchstart = lunchstart;
-        this.lunchstop = lunchstop;
-        this.lunchThreshold = lunchThreshold;
-
-        shiftInfo.put("shiftid", this.shiftid);
-        shiftInfo.put("desc", this.desc);
-        shiftInfo.put("shiftstart", this.shiftstart);
-        shiftInfo.put("shiftstop", this.shiftstop);
-        shiftInfo.put("roundInterval", this.roundInterval);
-        shiftInfo.put("gracePeriod", this.gracePeriod);
-        shiftInfo.put("dockPenalty", this.dockPenalty);
-        shiftInfo.put("lunchstart", this.lunchstart);
-        shiftInfo.put("lunchstop", this.lunchstop);
-        shiftInfo.put("lunchThreshold", this.lunchThreshold);
+    public Shift(HashMap<String, Object> theMap) {
+        this.theMap = theMap;
     }
 
     
     public  int getShiftId (){
-        return (int)shiftInfo.get("id");
+        return (int)theMap.get("id");
     }
     
     public String getDesc(){
-        return shiftInfo.get("description").toString();
+        return theMap.get("description").toString();
     }
     
     public LocalTime getShiftStart(){
-        return (LocalTime)shiftInfo.get("shiftstart");
+        return (LocalTime)theMap.get("shiftstart");
     }
     
     public LocalTime getShiftStop(){
-        return (LocalTime)shiftInfo.get("shiftstop");
+        return (LocalTime)theMap.get("shiftstop");
     }
     
     public int getRoundInterval(){
-        return (int)shiftInfo.get("roundinterval");
+        return (int)theMap.get("roundinterval");
     }
     
     public int getGracePeriod(){
-        return (int)shiftInfo.get("graceperiod");
+        return (int)theMap.get("graceperiod");
     }
     
     public int getDockPenalty(){
-        return (int)shiftInfo.get("dockpenalty");
+        return (int)theMap.get("dockpenalty");
     }
     
     public LocalTime getLunchStart(){
-        return (LocalTime)shiftInfo.get("lunchstart");
+        return (LocalTime)theMap.get("lunchstart");
     }
     
     public LocalTime getLunchStop(){
-        return (LocalTime)shiftInfo.get("lunchstop");
+        return (LocalTime)theMap.get("lunchstop");
     }
     
     public int getLunchThreshhold(){
-        return (int)shiftInfo.get("lunchthreshold");
+        return (int)theMap.get("lunchthreshold");
     }
     
     public int getShiftTime(){
