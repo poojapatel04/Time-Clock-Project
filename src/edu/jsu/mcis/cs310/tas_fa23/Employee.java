@@ -1,5 +1,7 @@
 package edu.jsu.mcis.cs310.tas_fa23;
 
+import java.time.LocalTime;
+
 /**
  *
  * @author Joshua Smith
@@ -13,9 +15,11 @@ public class Employee {
     private Department theDepartment;
     //private final Shift theShift;
     private EmployeeType workType;
+    private final LocalTime activity;
     
 
-    public Employee(int id, String firstName, String middleName, String lastName, Badge theBadge, Department theDepartment, EmployeeType workType) {
+    public Employee(int id, String firstName, String middleName, String lastName,
+                    Badge theBadge, Department theDepartment, EmployeeType workType, LocalTime activity) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.middleName = middleName;
@@ -23,6 +27,7 @@ public class Employee {
         this.theBadge = theBadge;
         this.theDepartment = theDepartment;
         this.workType = workType;
+        this.activity = activity;
     }
 
     public int getId() {
@@ -32,11 +37,43 @@ public class Employee {
     public String getFirstName() {
         return firstName;
     }
+    
+    public String getMiddleName() {
+        return middleName;
+    }
+    
+    public String getLastName() {
+        return lastName;
+    }
+    
+    public Badge getBadge() {
+        return theBadge;
+    }
+    
+    public Department getDepartment() {
+        return theDepartment;
+    }
+    
+    public EmployeeType getEmployeeType() {
+        return workType;
+    }
+    
+    public LocalTime getActivity() {
+        return activity;
+    }
+    
 
     @Override
     public String toString() {
 
         StringBuilder s = new StringBuilder();
+        
+        s.append("ID #").append(this.getId()).append(": ")
+        .append(this.getLastName()).append(", ")
+        .append(this.getFirstName()).append(" ")
+        .append(this.getMiddleName()).append(" (#").append(this.getBadge())
+        .append("), Type: ").append(this.getEmployeeType()).append(", Department: ")
+        .append(this.getDepartment()).append(", Active: ").append(this.getActivity());
 
         return s.toString();
 

@@ -166,21 +166,6 @@ public class Shift{
         
         return totalStr;
     }
-     /* public static Shift createFromSQLInfo(String[] sqlInfo) {
-        Map<String, String> shiftInfo = new HashMap<>();
-        shiftInfo.put("shiftid", sqlInfo[0]);
-        shiftInfo.put("desc", sqlInfo[1]);
-        shiftInfo.put("shiftstart", sqlInfo[2]);
-        shiftInfo.put("shiftstop", sqlInfo[3]);
-        shiftInfo.put("roundinterval", sqlInfo[4]);
-        shiftInfo.put("graceperiod", sqlInfo[5]);
-        shiftInfo.put("dockpenalty", sqlInfo[6]);
-        shiftInfo.put("lunchstart", sqlInfo[7]);
-        shiftInfo.put("lunchstop", sqlInfo[8]);
-        shiftInfo.put("lunchthreshold", sqlInfo[9]);
-
-        return new Shift(shiftInfo);
-    }*/
 }
 
 
