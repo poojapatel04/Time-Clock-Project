@@ -10,16 +10,16 @@ import java.time.LocalTime;
 public class Employee {
     
     private String firstName, middleName, lastName;
-    private final int id;
+    private int id;
     private Badge theBadge;
     private Department theDepartment;
-    //private final Shift theShift;
+    private Shift theShift;
     private EmployeeType workType;
     private final LocalTime activity;
     
 
-    public Employee(int id, String firstName, String middleName, String lastName,
-                    Badge theBadge, Department theDepartment, EmployeeType workType, LocalTime activity) {
+    public Employee(int id, String firstName, String middleName, String lastName, LocalTime activity,
+                    Badge theBadge, Department theDepartment, Shift theShift, EmployeeType workType) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.middleName = middleName;
@@ -27,6 +27,7 @@ public class Employee {
         this.theBadge = theBadge;
         this.theDepartment = theDepartment;
         this.workType = workType;
+        this.theShift = theShift;
         this.activity = activity;
     }
 

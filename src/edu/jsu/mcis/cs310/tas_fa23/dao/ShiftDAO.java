@@ -50,12 +50,12 @@ public class ShiftDAO {
                       hashmap.put("description" , rs.getString("description"));
                       hashmap.put("shiftstart", LocalTime.parse(rs.getString("shiftstart")));
                       hashmap.put("shiftstop", LocalTime.parse(rs.getString("shiftstop")));
-                      hashmap.put("RoundInterval", rs.getInt("RoundInterval"));
-                      hashmap.put("GracePeriod", rs.getInt("GracePeriod"));
-                      hashmap.put("DockPenalty", rs.getInt("DockPenalty"));
-                      hashmap.put("LunchStart", LocalTime.parse(rs.getString("LunchStart")));
-                      hashmap.put("LunchStop" , LocalTime.parse(rs.getString("LunchStop")));
-                      hashmap.put("LunchThreshold", rs.getInt("LunchThreshold"));
+                      hashmap.put("roundinterval", rs.getInt("roundinterval"));
+                      hashmap.put("graceperiod", rs.getInt("graceperiod"));
+                      hashmap.put("dockpenalty", rs.getInt("dockpenalty"));
+                      hashmap.put("lunchstart", LocalTime.parse(rs.getString("lunchstart")));
+                      hashmap.put("lunchstop" , LocalTime.parse(rs.getString("lunchstop")));
+                      hashmap.put("lunchthreshold", rs.getInt("lunchthreshold"));
                       shift = new Shift(hashmap);
                              
                       
@@ -82,6 +82,7 @@ public class ShiftDAO {
       }
       return shift;
     }
+    
     public Shift find(Badge badge) {
         Shift shift = null;
         
@@ -104,7 +105,7 @@ public class ShiftDAO {
                 rs = ps.getResultSet();
                 rs.next();
                 int shiftid = rs.getInt("shiftid");
-                shift = find(shiftid);
+                shift = this.find(shiftid);
         }
     }
 } catch (SQLException e) {
