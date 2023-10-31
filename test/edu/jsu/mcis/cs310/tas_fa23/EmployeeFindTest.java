@@ -93,7 +93,7 @@ public class EmployeeFindTest {
 
         /* Compare to Expected Values */
         
-        assertEquals("ID #116: Gallegos, phillip M (#DFD9BB5C), Type: Temporary / Part-Time, Department: Warehouse, Active: 09/18/2015", e5.toString());
+        assertEquals("ID #116: Gallegos, Phillip M (#DFD9BB5C), Type: Temporary / Part-Time, Department: Hafting, Active: 09/18/2015", e5.toString());
     }
 
     

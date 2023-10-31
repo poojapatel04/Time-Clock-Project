@@ -6,6 +6,7 @@ import edu.jsu.mcis.cs310.tas_fa23.Employee;
 import edu.jsu.mcis.cs310.tas_fa23.EmployeeType;
 import edu.jsu.mcis.cs310.tas_fa23.Shift;
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
@@ -19,8 +20,6 @@ public class EmployeeDAO {
     private static final String QUERY_FIND = "SELECT * FROM employee WHERE id = ?";
     
     private static final String QUERY_FIND2 = "SELECT * FROM employee WHERE badgeid = ?";
-    
-    private static final String QUERY_FIND3 = "SELECT * FROM department WHERE id = ?";
 
     private final DAOFactory daoFactory;
 
@@ -41,9 +40,7 @@ public class EmployeeDAO {
         String theID = myID.toString();
 
         PreparedStatement ps = null;
-        PreparedStatement getDepartmentStatement = null;
         ResultSet rs = null;
-        ResultSet gds = null;
 
         try {
 
@@ -52,7 +49,6 @@ public class EmployeeDAO {
             if (conn.isValid(0)) {
 
                 ps = conn.prepareStatement(QUERY_FIND);
-                getDepartmentStatement = conn.prepareStatement(QUERY_FIND3);
                 ps.setString(1, theID);
                 
 
@@ -73,14 +69,8 @@ public class EmployeeDAO {
                         personDescription.append(lastName).append(", ")
                         .append(firstName).append(" ").append(middleName);
                         
-                        getDepartmentStatement.setString(1, rs.getString("departmentid"));
-                        boolean hasresults2 = getDepartmentStatement.execute();
-                        if (hasresults2) {
-                            gds = getDepartmentStatement.getResultSet();
-                            gds.next();
-                        }
-                        Department departmentid = new Department(rs.getInt("departmentid"), gds.getString("description"), gds.getInt("terminalid"));
-                        
+                        DepartmentDAO departmentDAO = daoFactory.getDepartmentDAO();
+                        Department departmentid = departmentDAO.find(rs.getInt("departmentid"));
                         
                         int workType = rs.getInt("employeetypeid");
                         
@@ -101,8 +91,8 @@ public class EmployeeDAO {
                         String activity = rs.getString("active");
                         
                         
-                        DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE;
-                        LocalTime active = LocalTime.parse(activity, formatter);
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                        LocalDateTime active = LocalDateTime.parse(activity, formatter);
                         
                         String theDescription = personDescription.toString();
                         Badge badgeid = new Badge(rs.getString("badgeid"), theDescription);
@@ -155,11 +145,8 @@ public class EmployeeDAO {
         myBadgeid = myBadgeid.append(theBadge.getId());
         String badge = myBadgeid.toString();
 
-        System.err.println(badge);
         PreparedStatement ps = null;
-        PreparedStatement getDepartmentStatement = null;
         ResultSet rs = null;
-        ResultSet gds = null;
 
         try {
 
@@ -168,7 +155,6 @@ public class EmployeeDAO {
             if (conn.isValid(0)) {
 
                 ps = conn.prepareStatement(QUERY_FIND2);
-                getDepartmentStatement = conn.prepareStatement(QUERY_FIND3);
                 ps.setString(1, badge);
                 
 
@@ -180,22 +166,14 @@ public class EmployeeDAO {
 
                     while (rs.next()) {
                         
-                        StringBuilder personDescription = new StringBuilder();
                         int id = rs.getInt("id");
                         
                         String firstName = rs.getString("firstname");
                         String middleName = rs.getString("middlename");
                         String lastName = rs.getString("lastname");
-                        personDescription.append(lastName).append(", ")
-                        .append(firstName).append(" ").append(middleName);
                         
-                        getDepartmentStatement.setString(1, rs.getString("departmentid"));
-                        boolean hasresults2 = getDepartmentStatement.execute();
-                        if (hasresults2) {
-                            gds = getDepartmentStatement.getResultSet();
-                            gds.next();
-                        }
-                        Department departmentid = new Department(rs.getInt("departmentid"), gds.getString("description"), gds.getInt("terminalid"));
+                        DepartmentDAO departmentDAO = daoFactory.getDepartmentDAO();
+                        Department departmentid = departmentDAO.find(rs.getInt("departmentid"));
                         
                         
                         int workType = rs.getInt("employeetypeid");
@@ -217,10 +195,8 @@ public class EmployeeDAO {
                         String activity = rs.getString("active");
                         
                         
-                        DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE;
-                        LocalTime active = LocalTime.parse(activity, formatter);
-                        
-                        String theDescription = personDescription.toString();
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                        LocalDateTime active = LocalDateTime.parse(activity, formatter);
                         
                         theEmployee = new Employee(id, firstName, middleName, lastName,
                  active, theBadge, departmentid, theShift, employeeType);

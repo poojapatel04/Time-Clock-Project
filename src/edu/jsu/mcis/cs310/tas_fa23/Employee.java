@@ -1,6 +1,10 @@
 package edu.jsu.mcis.cs310.tas_fa23;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.Month;
+import java.time.format.DateTimeFormatter;
 
 /**
  *
@@ -15,10 +19,10 @@ public class Employee {
     private Department theDepartment;
     private Shift theShift;
     private EmployeeType workType;
-    private final LocalTime activity;
+    private final LocalDateTime activity;
     
 
-    public Employee(int id, String firstName, String middleName, String lastName, LocalTime activity,
+    public Employee(int id, String firstName, String middleName, String lastName, LocalDateTime activity,
                     Badge theBadge, Department theDepartment, Shift theShift, EmployeeType workType) {
         this.firstName = firstName;
         this.lastName = lastName;
@@ -59,8 +63,15 @@ public class Employee {
         return workType;
     }
     
-    public LocalTime getActivity() {
+    public LocalDateTime getActivity() {
         return activity;
+    }
+    
+    public String getDate() {
+        LocalDate theDate = LocalDate.of(activity.getYear(), activity.getMonthValue(), activity.getDayOfMonth());
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+        String startDate = theDate.format(formatter);
+        return startDate;
     }
     
 
@@ -72,9 +83,9 @@ public class Employee {
         s.append("ID #").append(this.getId()).append(": ")
         .append(this.getLastName()).append(", ")
         .append(this.getFirstName()).append(" ")
-        .append(this.getMiddleName()).append(" (#").append(this.getBadge())
+        .append(this.getMiddleName()).append(" (#").append(theBadge.getId())
         .append("), Type: ").append(this.getEmployeeType()).append(", Department: ")
-        .append(this.getDepartment()).append(", Active: ").append(this.getActivity());
+        .append(theDepartment.getDescription()).append(", Active: ").append(this.getDate());
 
         return s.toString();
 
