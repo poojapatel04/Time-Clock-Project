@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
  */
 public class PunchDAO {
     private static final String QUERY_FIND = "SELECT * FROM event where id = ?";
+    private static final String QUERY_CREATE = "INSERT INTO event (terminalid, badgeid, timestamp, eventtypeid) VALUES( ?, ?, ?, ?)";
     
     private final DAOFactory daoFactory;
     PunchDAO(DAOFactory daoFactory) {
@@ -89,6 +90,72 @@ public class PunchDAO {
                  }
                   return punch;   
     }
-}
+    
+    public int create(Punch newPunch) {
+        int punchId = 0;
+ 
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+       
+        EmployeeDAO employDao = daoFactory.getEmployeeDAO();
+        Employee employ = employDao.find(newPunch.getBadge());
+
+        int employTerminalId = employ.getDepartment().getTerminalId();
+
+        if(employTerminalId == newPunch.getTerminalid()) {
          
+            try{
+        Connection conn = daoFactory.getConnection();
         
+        if(conn. isValid(0)) {
+            ps = conn.prepareStatement(QUERY_CREATE, PreparedStatement.RETURN_GENERATED_KEYS);
+            
+            ps.setInt(1, newPunch.getTerminalid());
+            ps.setString(2, newPunch.getBadge().getId());
+            ps.setString(3, newPunch.getOriginaltimestamp().toString());
+            ps.setInt(4, newPunch.getPunchtype().ordinal());
+            
+            
+            int result = ps.executeUpdate();
+            if(result  == 1) {
+                rs = ps.getGeneratedKeys();
+                
+                if(rs.next()) {
+                    punchId = rs.getInt(1);
+                }
+            }
+        }
+    } catch (SQLException e) {
+             
+             throw new DAOException(e.getMessage());
+             
+             
+         } finally {
+                 if (rs != null) {
+                 try {
+                 rs.close();
+                 }catch (SQLException e) {
+                 throw new DAOException(e.getMessage());
+                 }
+                    
+        }
+                 if (ps != null) {
+                 try {
+                 ps.close();
+                 }catch (SQLException e) {
+                 throw new DAOException(e.getMessage());
+                 }
+                 }
+                 
+                 }
+}
+
+return punchId;
+
+
+    }
+}
+
+
+
+
