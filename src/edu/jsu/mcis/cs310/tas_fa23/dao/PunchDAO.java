@@ -6,6 +6,9 @@ package edu.jsu.mcis.cs310.tas_fa23.dao;
 import edu.jsu.mcis.cs310.tas_fa23.*;
 import java.sql.*;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+
 
 
 /**
@@ -14,7 +17,7 @@ import java.time.LocalDateTime;
  */
 public class PunchDAO {
     private static final String QUERY_FIND = "SELECT * FROM event where id = ?";
-    private static final String QUERY_CREATE = "INSERT INTO event (terminalid, badgeid, timestamp, eventtypeid) VALUES( ?, ?, ?, ?)";
+    private static final String QUERY_CREATE = "INSERT INTO event (terminalid, badgeid, timestamp, eventtypeid) VALUES ( ?, ?, ?, ?)";
     
     private final DAOFactory daoFactory;
     PunchDAO(DAOFactory daoFactory) {
@@ -44,22 +47,22 @@ public class PunchDAO {
              
              while (rs.next()) {
                  
-                 int terminalid;
-                 String badgeid;
-                 EventType punchtype;
-                 LocalDateTime originaltimestamp;
+            int terminalid;
+            String badgeid;
+            EventType punchtype;
+            LocalDateTime originaltimestamp;
                  
-                 terminalid = rs.getInt("terminalid");
+            terminalid = rs.getInt("terminalid");
                  
-                 badgeid = rs.getString("badgeid");
-                 BadgeDAO badgeDAO = daoFactory.getBadgeDAO();
-                 Badge b = badgeDAO.find(badgeid);
+            badgeid = rs.getString("badgeid");
+            BadgeDAO badgeDAO = daoFactory.getBadgeDAO();
+            Badge b = badgeDAO.find(badgeid);
                  
-                 punchtype = EventType.values()[rs.getInt("eventtypeid")];
+            punchtype = EventType.values()[rs.getInt("eventtypeid")];
                  
-                 originaltimestamp = rs.getTimestamp("timestamp").toLocalDateTime();
+            originaltimestamp = rs.getTimestamp("timestamp").toLocalDateTime();
                  
-                 punch = new Punch (id, terminalid, b, originaltimestamp, punchtype);
+            punch = new Punch (id, terminalid, b, originaltimestamp, punchtype);
                  
              }
          }
@@ -97,23 +100,26 @@ public class PunchDAO {
         PreparedStatement ps = null;
         ResultSet rs = null;
        
-        EmployeeDAO employDao = daoFactory.getEmployeeDAO();
-        Employee employ = employDao.find(newPunch.getBadge());
-
-        int employTerminalId = employ.getDepartment().getTerminalId();
-
-        if(employTerminalId == newPunch.getTerminalid()) {
-         
-            try{
-        Connection conn = daoFactory.getConnection();
+        EmployeeDAO employeeDAO = daoFactory.getEmployeeDAO();
+        Employee employee = employeeDAO.find(newPunch.getBadge());
         
-        if(conn. isValid(0)) {
+        if(newPunch.getTerminalid() == employee.getDepartment().getTerminalId() || newPunch.getTerminalid() == 0) {
+         
+        try{
+            
+            Connection conn = daoFactory.getConnection();
+        
+            if(conn. isValid(0)) {
+            
+                final String date = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(newPunch.getOriginaltimestamp());
+                final int eventTypeid = EventType.valueOf(newPunch.getPunchtype().name()).ordinal();
+            
             ps = conn.prepareStatement(QUERY_CREATE, PreparedStatement.RETURN_GENERATED_KEYS);
             
             ps.setInt(1, newPunch.getTerminalid());
             ps.setString(2, newPunch.getBadge().getId());
-            ps.setString(3, newPunch.getOriginaltimestamp().toString());
-            ps.setInt(4, newPunch.getPunchtype().ordinal());
+            ps.setString(3, date);
+            ps.setInt(4, eventTypeid);
             
             
             int result = ps.executeUpdate();
