@@ -111,14 +111,14 @@ public class PunchDAO {
         
             if(conn. isValid(0)) {
             
-                final String date = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(newPunch.getOriginaltimestamp());
+                final String Date = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(newPunch.getOriginaltimestamp());
                 final int eventTypeid = EventType.valueOf(newPunch.getPunchtype().name()).ordinal();
             
             ps = conn.prepareStatement(QUERY_CREATE, PreparedStatement.RETURN_GENERATED_KEYS);
             
             ps.setInt(1, newPunch.getTerminalid());
             ps.setString(2, newPunch.getBadge().getId());
-            ps.setString(3, date);
+            ps.setString(3, Date);
             ps.setInt(4, eventTypeid);
             
             
