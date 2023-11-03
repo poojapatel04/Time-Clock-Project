@@ -111,8 +111,8 @@ public class PunchDAO {
         
             if(conn. isValid(0)) {
             
-                final String Date = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(newPunch.getOriginaltimestamp());
-                final int eventTypeid = EventType.valueOf(newPunch.getPunchtype().name()).ordinal();
+                String Date = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(newPunch.getOriginaltimestamp());
+                 int eventTypeid = EventType.valueOf(newPunch.getPunchtype().name()).ordinal();
             
             ps = conn.prepareStatement(QUERY_CREATE, PreparedStatement.RETURN_GENERATED_KEYS);
             
