@@ -34,6 +34,10 @@ public class Employee {
         this.theShift = theShift;
         this.activity = activity;
     }
+    
+    public Shift getShift() {
+        return theShift;
+    }
 
     public int getId() {
         return id;

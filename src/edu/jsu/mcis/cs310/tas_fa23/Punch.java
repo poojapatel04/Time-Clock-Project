@@ -4,6 +4,7 @@
  */
 package edu.jsu.mcis.cs310.tas_fa23;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 /**
  *
@@ -38,6 +39,25 @@ public class Punch {
         
     }
     
+    public void adjust(Shift s) {
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_TIME;
+        LocalTime theShiftStart = s.getShiftstart();
+        LocalTime theShiftEnd = s.getShiftstop();
+        LocalTime theLunchStart = s.getLunchstart();
+        LocalTime theLunchEnd = s.getLunchstop();
+        int theRoundInterval = s.getRoundInterval();
+        int theGracePeriod = s.getGracePeriod();
+        int theDockPenalty = s.getDockPenalty();
+        LocalDateTime thepunch = this.getOriginaltimestamp();
+        LocalTime punchTime = thepunch.toLocalTime();
+        
+        //TEST SHOWS BOTH SHIFT AND PUNCH TIME
+        System.err.println(theShiftStart.format(formatter) + " " + punchTime.format(formatter));
+        
+        //START OF RULES
+        
+    }
+    
     public Integer getId() {
         return id;
     }
@@ -54,7 +74,6 @@ public class Punch {
     public LocalDateTime getOriginaltimestamp() {
         return originaltimestamp;
     }
-         
     public LocalDateTime getAdjustedtimestamp(){
         return adjustedtimestamp;
     }
@@ -68,12 +87,26 @@ public class Punch {
         
         StringBuilder s = new StringBuilder();
         
-        DateTimeFormatter format = DateTimeFormatter.ofPattern("EEE MM/dd/yyyy HH:mm:ss");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE MM/dd/yyyy HH:mm:ss");
        
         s.append('#');
         s.append(badge.getId()).append(" ");
         s.append(punchtype).append(": ");
-        s.append(originaltimestamp.format(format).toUpperCase());
+        s.append(originaltimestamp.format(formatter).toUpperCase());
+        
+        return s.toString();
+    }
+    
+    public String printAdjusted() {
+        
+        StringBuilder s = new StringBuilder();
+        
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE MM/dd/yyyy HH:mm:ss");
+       
+        s.append('#');
+        s.append(badge.getId()).append(" ");
+        s.append(punchtype).append(": ");
+        s.append(originaltimestamp.format(formatter).toUpperCase());
         
         return s.toString();
     }
