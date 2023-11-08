@@ -235,7 +235,7 @@ public class PunchListFindTest {
         
         LocalDate ts = LocalDate.of(2018, Month.SEPTEMBER, 18);
 
-        Badge b = badgeDAO.find("DFDFE6448");
+        Badge b = badgeDAO.find("DFDFE648");
 
         /* Retrieve Punch List #1 (created by DAO) */
         
