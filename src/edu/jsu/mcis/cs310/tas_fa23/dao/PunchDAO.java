@@ -5,8 +5,11 @@
 package edu.jsu.mcis.cs310.tas_fa23.dao;
 import edu.jsu.mcis.cs310.tas_fa23.*;
 import java.sql.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 
 
 
@@ -18,6 +21,7 @@ import java.time.format.DateTimeFormatter;
 public class PunchDAO {
     private static final String QUERY_FIND = "SELECT * FROM event where id = ?";
     private static final String QUERY_CREATE = "INSERT INTO event (terminalid, badgeid, timestamp, eventtypeid) VALUES ( ?, ?, ?, ?)";
+    private static final String QUERY_FIND2 = "SELECT * FROM event where badgeid = ?";
     
     private final DAOFactory daoFactory;
     PunchDAO(DAOFactory daoFactory) {
@@ -160,6 +164,70 @@ return punchId;
 
 
     }
+    
+    public ArrayList<Punch> list(Badge theBadge, LocalDate neededDate) {
+        Punch punch = null;
+        ArrayList<Punch> punchArray = new ArrayList();
+        
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        
+        try {
+            Connection conn = daoFactory.getConnection();
+            
+            if(conn.isValid(0)) {
+                
+                ps = conn.prepareStatement(QUERY_FIND2);
+                ps.setString(1, theBadge.getId());
+         
+        boolean hasresults = ps.execute();
+         
+        if(hasresults) {
+             
+            rs = ps.getResultSet();
+             
+            while (rs.next()) {
+                 
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                LocalDateTime workDates = LocalDateTime.parse(rs.getString("timestamp"), formatter);
+                LocalDate theWorkDate = workDates.toLocalDate();
+                 
+                if (neededDate.isEqual(theWorkDate)) {
+                
+                    punch = daoFactory.getPunchDAO().find(rs.getInt("id"));
+                    punchArray.add(punch);
+                    
+                }
+                
+            }
+        }
+    }
+         
+        } catch (SQLException e) {
+             
+             throw new DAOException(e.getMessage());
+             
+             
+         } finally {
+                 if (rs != null) {
+                 try {
+                 rs.close();
+                 }catch (SQLException e) {
+                 throw new DAOException(e.getMessage());
+                 }
+                    
+        }
+                 if (ps != null) {
+                 try {
+                 ps.close();
+                 }catch (SQLException e) {
+                 throw new DAOException(e.getMessage());
+                 }
+                 }
+                 
+                 }
+                  return punchArray;   
+    }  
 }
 
 

@@ -37,29 +37,33 @@ public class Punch {
         this.originaltimestamp = origtimestamp;
         
     }
-         public Integer getId() {
-             return id;
-         }
-         
-         public Integer getTerminalid() {
-             return terminalid;
+    
+    public Integer getId() {
+        return id;
     }
-         public Badge getBadge() {
-             return badge;
-         }
-         public EventType getPunchtype() {
-             return punchtype;
-         }
-         public LocalDateTime getOriginaltimestamp() {
-             return originaltimestamp;
-         }
          
-         public LocalDateTime getAdjustedtimestamp(){
-             return adjustedtimestamp;
-         }
-         public PunchAdjustmentType getAdjustmenttype() {
-             return adjustmenttype;
-         }
+    public Integer getTerminalid() {
+        return terminalid;
+    }
+    public Badge getBadge() {
+        return badge;
+    }
+    public EventType getPunchtype() {
+        return punchtype;
+    }
+    public LocalDateTime getOriginaltimestamp() {
+        return originaltimestamp;
+    }
+         
+    public LocalDateTime getAdjustedtimestamp(){
+        return adjustedtimestamp;
+    }
+    public PunchAdjustmentType getAdjustmenttype() {
+        return adjustmenttype;
+    }
+         
+         
+    
     public String printOriginal() {
         
         StringBuilder s = new StringBuilder();
@@ -69,17 +73,11 @@ public class Punch {
         s.append('#');
         s.append(badge.getId()).append(" ");
         s.append(punchtype).append(": ");
-        s.append(originaltimestamp.format(format));
+        s.append(originaltimestamp.format(format).toUpperCase());
         
-        return s.toString().toUpperCase();
+        return s.toString();
     }
-        
-        @Override
-        public String toString() {
-        return printOriginal();
-    }
-        
-        }
+}
         
         
         
