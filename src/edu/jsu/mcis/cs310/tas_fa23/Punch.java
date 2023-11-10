@@ -51,10 +51,22 @@ public class Punch {
         LocalDateTime thepunch = this.getOriginaltimestamp();
         LocalTime punchTime = thepunch.toLocalTime();
         
-        //TEST SHOWS BOTH SHIFT AND PUNCH TIME
-        System.err.println(theShiftStart.format(formatter) + " " + punchTime.format(formatter));
+        boolean isBeforeStart = punchTime.isBefore(theShiftStart);
+        boolean isAfterStart = punchTime.isAfter(theShiftStart);
+        boolean isBeforeEnd = punchTime.isBefore(theShiftEnd);
+        boolean isAfterEnd = punchTime.isAfter(theShiftEnd);
+        boolean isBeforeLunchStart = punchTime.isBefore(theLunchStart);
+        boolean isAfterLunchStart = punchTime.isAfter(theLunchStart);
+        boolean isBeforeLunchEnd = punchTime.isBefore(theLunchEnd);
+        boolean isAfterLunchEnd = punchTime.isAfter(theLunchEnd);
+        
+        //TEST SHOWS BOTH SHIFT AND PUNCH TIME, NEXT TEST IS THE BOOLEANS FOR BEFORE AND AFTER [PUNCH IN/OUT TIME HERE]
+        //System.err.println(theShiftStart.format(formatter) + " " + punchTime.format(formatter));
+        //System.err.println(isBeforeTime + " " + isAfterTime);
         
         //START OF RULES
+        
+        
         
     }
     
