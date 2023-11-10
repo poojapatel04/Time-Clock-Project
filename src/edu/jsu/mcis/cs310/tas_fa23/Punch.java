@@ -3,6 +3,8 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package edu.jsu.mcis.cs310.tas_fa23;
+import static edu.jsu.mcis.cs310.tas_fa23.EventType.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -49,8 +51,10 @@ public class Punch {
         int theGracePeriod = s.getGracePeriod();
         int theDockPenalty = s.getDockPenalty();
         LocalDateTime thepunch = this.getOriginaltimestamp();
+        LocalDate punchDay = thepunch.toLocalDate();
         LocalTime punchTime = thepunch.toLocalTime();
         
+        //WHICH RULES BOOLS
         boolean isBeforeStart = punchTime.isBefore(theShiftStart);
         boolean isAfterStart = punchTime.isAfter(theShiftStart);
         boolean isBeforeEnd = punchTime.isBefore(theShiftEnd);
@@ -60,12 +64,30 @@ public class Punch {
         boolean isBeforeLunchEnd = punchTime.isBefore(theLunchEnd);
         boolean isAfterLunchEnd = punchTime.isAfter(theLunchEnd);
         
+        
+        //SPECIAL CASE BOOLS
+        boolean weekend = this.isWeekend(punchDay);
+        boolean ifTimeOut = this.TimeOut();
+        
+        
         //TEST SHOWS BOTH SHIFT AND PUNCH TIME, NEXT TEST IS THE BOOLEANS FOR BEFORE AND AFTER [PUNCH IN/OUT TIME HERE]
         //System.err.println(theShiftStart.format(formatter) + " " + punchTime.format(formatter));
         //System.err.println(isBeforeTime + " " + isAfterTime);
+        System.err.println(weekend + " " + ifTimeOut);
         
         //START OF RULES
         
+        if (weekend || ifTimeOut) {
+            thepunch = thepunch.withSecond(00);
+        }
+        else {
+            //START OF MAIN SET OF RULES
+            
+            
+            
+        
+        
+        }
         
         
     }
@@ -91,6 +113,27 @@ public class Punch {
     }
     public PunchAdjustmentType getAdjustmenttype() {
         return adjustmenttype;
+    }
+    
+    public boolean isWeekend(LocalDate theDate) {
+        switch(theDate.getDayOfWeek()) {
+            case SATURDAY:
+                return true;
+            case SUNDAY:
+                return true;
+            default:
+                return false;
+        }
+    }
+    
+    public boolean TimeOut() {
+        switch(this.getPunchtype()) {
+            case TIME_OUT:
+                return true;
+            default:
+                return false;
+            
+        }
     }
          
          
