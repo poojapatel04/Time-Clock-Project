@@ -29,7 +29,8 @@ public class Punch {
         this.badge = badge;
         this.punchtype = punchtype;
         this.originaltimestamp = LocalDateTime.now();
-        
+        this.adjustedtimestamp = originaltimestamp;
+        this.adjustmenttype = PunchAdjustmentType.NONE;
         
     }
     public Punch(int id,int terminalid, Badge badge, LocalDateTime origtimestamp, EventType punchtype) {
@@ -38,6 +39,8 @@ public class Punch {
         this.badge = badge;
         this.punchtype = punchtype;
         this.originaltimestamp = origtimestamp;
+        this.adjustedtimestamp = originaltimestamp;
+        this.adjustmenttype = PunchAdjustmentType.NONE;
         
     }
     
@@ -52,10 +55,20 @@ public class Punch {
         int theDockPenalty = s.getDockPenalty();
         LocalDateTime thepunch = this.getOriginaltimestamp();
         LocalDate punchDay = thepunch.toLocalDate();
+        LocalTime roundTimeUnder = null;
         LocalTime punchTime = thepunch.toLocalTime();
+        roundTimeUnder = punchTime;
+        roundTimeUnder = roundTimeUnder.withHour(punchTime.getHour()).withMinute(60-theRoundInterval).withSecond(00);
+        LocalTime roundTimeAfter = null;
+        roundTimeAfter = punchTime;
+        roundTimeAfter = roundTimeAfter.withHour(punchTime.getHour()).withMinute(theRoundInterval).withSecond(00);
+        
         
         //WHICH RULES BOOLS
+        boolean onTime = punchTime.equals(theShiftStart);
         boolean isBeforeStart = punchTime.isBefore(theShiftStart);
+        boolean withinRoundingUnder = punchTime.isAfter(roundTimeUnder);
+        boolean withinRoundingOver = punchTime.isBefore(roundTimeAfter);
         boolean isAfterStart = punchTime.isAfter(theShiftStart);
         boolean isBeforeEnd = punchTime.isBefore(theShiftEnd);
         boolean isAfterEnd = punchTime.isAfter(theShiftEnd);
@@ -73,17 +86,58 @@ public class Punch {
         //TEST SHOWS BOTH SHIFT AND PUNCH TIME, NEXT TEST IS THE BOOLEANS FOR BEFORE AND AFTER [PUNCH IN/OUT TIME HERE]
         //System.err.println(theShiftStart.format(formatter) + " " + punchTime.format(formatter));
         //System.err.println(isBeforeTime + " " + isAfterTime);
-        System.err.println(weekend + " " + ifTimeOut);
+        //System.err.println(weekend + " " + ifTimeOut);
         
         //START OF RULES
         
+        this.adjustedtimestamp = thepunch;
+        
         if (weekend || ifTimeOut) {
             thepunch = thepunch.withSecond(00);
+            //System.err.println(thepunch);
         }
         else {
             //START OF MAIN SET OF RULES
             
+            //SHIFT START
+            if (isBeforeStart && withinRoundingUnder) {
+                
+                this.adjustedtimestamp = this.adjustedtimestamp.withSecond(00);
+                this.adjustedtimestamp = this.adjustedtimestamp.withMinute(0);
+                this.adjustedtimestamp = this.adjustedtimestamp.withHour(this.adjustedtimestamp.getHour()+1);
+                this.adjustmenttype = PunchAdjustmentType.SHIFT_START;
+            }
             
+            //SHIFT STOP
+            else if (isAfterEnd && withinRoundingOver) {
+                
+                this.adjustedtimestamp = this.adjustedtimestamp.withSecond(00);
+                this.adjustedtimestamp = this.adjustedtimestamp.withMinute(0);
+                this.adjustedtimestamp = this.adjustedtimestamp.withHour(this.adjustedtimestamp.getHour()-1);
+                this.adjustmenttype = PunchAdjustmentType.SHIFT_STOP;
+            }
+            
+            //LUNCH START
+            else if ((isBeforeLunchStart && withinRoundingUnder) || (isAfterLunchStart && withinRoundingOver)) {
+            
+                this.adjustedtimestamp = this.adjustedtimestamp.withSecond(00);
+                this.adjustedtimestamp = this.adjustedtimestamp.withMinute(0);
+                this.adjustedtimestamp = this.adjustedtimestamp.withHour(this.adjustedtimestamp.getHour());
+                this.adjustmenttype = PunchAdjustmentType.LUNCH_START;
+            }
+            
+            //LUNCH STOP
+            else if (((isBeforeLunchEnd && withinRoundingUnder) || (isAfterLunchEnd && withinRoundingOver))) {
+                this.adjustedtimestamp = this.adjustedtimestamp.withSecond(00);
+                this.adjustedtimestamp = this.adjustedtimestamp.withMinute(0);
+                this.adjustedtimestamp = this.adjustedtimestamp.withHour(this.adjustedtimestamp.getHour());
+                this.adjustmenttype = PunchAdjustmentType.LUNCH_STOP;
+            }
+            
+            else {
+                this.adjustedtimestamp = this.adjustedtimestamp.withSecond(00);
+            }
+        
             
         
         
@@ -152,6 +206,7 @@ public class Punch {
         return s.toString();
     }
     
+    
     public String printAdjusted() {
         
         StringBuilder s = new StringBuilder();
@@ -159,9 +214,10 @@ public class Punch {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE MM/dd/yyyy HH:mm:ss");
        
         s.append('#');
-        s.append(badge.getId()).append(" ");
-        s.append(punchtype).append(": ");
-        s.append(originaltimestamp.format(formatter).toUpperCase());
+        s.append(this.badge.getId()).append(" ");
+        s.append(this.punchtype).append(": ");
+        s.append(this.adjustedtimestamp.format(formatter).toUpperCase());
+        s.append(" (").append(this.adjustmenttype).append(")");
         
         return s.toString();
     }
