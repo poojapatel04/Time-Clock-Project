@@ -30,7 +30,8 @@ public class Punch {
         this.punchtype = punchtype;
         this.originaltimestamp = LocalDateTime.now();
         
-        
+        this.adjustedtimestamp = originaltimestamp;
+        this.adjustmenttype = PunchAdjustmentType.NONE;
     }
     public Punch(int id,int terminalid, Badge badge, LocalDateTime origtimestamp, EventType punchtype) {
         this.id = id;
@@ -38,6 +39,8 @@ public class Punch {
         this.badge = badge;
         this.punchtype = punchtype;
         this.originaltimestamp = origtimestamp;
+        this.adjustedtimestamp = originaltimestamp;
+        this.adjustmenttype = PunchAdjustmentType.NONE;
         
     }
     
@@ -53,6 +56,20 @@ public class Punch {
         LocalDateTime thepunch = this.getOriginaltimestamp();
         LocalDate punchDay = thepunch.toLocalDate();
         LocalTime punchTime = thepunch.toLocalTime();
+
+        
+
+        
+        LocalTime shiftStartInterval = theShiftStart.minusMinutes(theRoundInterval);
+        LocalTime shiftStartGrace = theShiftStart.plusMinutes(theGracePeriod);
+        LocalTime shiftStartDock = theShiftStart.minusMinutes(theDockPenalty);
+
+        LocalTime shiftStopInterval = theShiftStart.minusMinutes(theRoundInterval);
+        LocalTime shiftStopGrace = theShiftStart.plusMinutes(theGracePeriod);
+        LocalTime shiftStopDock = theShiftStart.minusMinutes(theDockPenalty);
+
+         adjustedtimestamp = null;
+         adjustmenttype = null;
         
         //WHICH RULES BOOLS
         boolean isBeforeStart = punchTime.isBefore(theShiftStart);
@@ -63,7 +80,7 @@ public class Punch {
         boolean isAfterLunchStart = punchTime.isAfter(theLunchStart);
         boolean isBeforeLunchEnd = punchTime.isBefore(theLunchEnd);
         boolean isAfterLunchEnd = punchTime.isAfter(theLunchEnd);
-        
+
         
         //SPECIAL CASE BOOLS
         boolean weekend = this.isWeekend(punchDay);
@@ -73,23 +90,101 @@ public class Punch {
         //TEST SHOWS BOTH SHIFT AND PUNCH TIME, NEXT TEST IS THE BOOLEANS FOR BEFORE AND AFTER [PUNCH IN/OUT TIME HERE]
         //System.err.println(theShiftStart.format(formatter) + " " + punchTime.format(formatter));
         //System.err.println(isBeforeTime + " " + isAfterTime);
-        System.err.println(weekend + " " + ifTimeOut);
+        //System.err.println(weekend + " " + ifTimeOut);
         
         //START OF RULES
+        this.adjustedtimestamp = thepunch;
         
         if (weekend || ifTimeOut) {
             thepunch = thepunch.withSecond(00);
         }
+        
+        
+        
+        
         else {
             //START OF MAIN SET OF RULES
+
+             
+            if(punchTime.isAfter(shiftStartInterval.minusSeconds(1)) && punchTime.isBefore(theShiftStart)) {
+                this.adjustedtimestamp = thepunch.with(theShiftStart);
+                 adjustmenttype = PunchAdjustmentType.SHIFT_START;
+            }
+
+            else if (punchTime.isBefore(theShiftStart) && punchTime.isBefore(shiftStartGrace)) {
+                this.adjustedtimestamp = thepunch.with(theShiftStart);
+                adjustmenttype = PunchAdjustmentType.SHIFT_START;
+            }
+            else if (punchTime.isAfter(shiftStartGrace) && punchTime.isBefore(shiftStartDock.plusSeconds(1))) {
+                this.adjustedtimestamp = thepunch.with(shiftStartDock);
+                adjustmenttype = PunchAdjustmentType.SHIFT_DOCK;
+            }
             
+            else if (punchTime.isAfter(theShiftEnd) && punchTime.isBefore(shiftStopInterval.plusSeconds(1))) {
+                this.adjustedtimestamp = thepunch.with(theShiftEnd);
+                adjustmenttype = PunchAdjustmentType.SHIFT_STOP;
+            }
+            else if (punchTime.isBefore(theShiftEnd) && punchTime.isAfter(shiftStopGrace)) {
+                this.adjustedtimestamp = thepunch.with(theShiftEnd);
+                adjustmenttype = PunchAdjustmentType.SHIFT_STOP;
+            }
+            else if (punchTime.isBefore(shiftStopGrace) && punchTime.isAfter(shiftStopDock.minusSeconds(1))) {
+                this.adjustedtimestamp = thepunch.with(shiftStopDock);
+                adjustmenttype = PunchAdjustmentType.SHIFT_DOCK;
+            }
             
-            
-        
-        
         }
         
         
+            if (adjustedtimestamp != null && adjustmenttype != null) {
+                return;
+            } 
+            if ((thepunch.getMinute() % 15) != 0) {
+                int adjustedminute;
+                int minute = thepunch.getMinute();
+                //System.out.println(minute);
+                
+                if ((minute % theRoundInterval) < (theRoundInterval) / 2) {
+                    adjustedminute = (Math.round(minute / theRoundInterval) * theRoundInterval);
+                    System.out.println(adjustedminute);
+                    //System.out.println(theRoundInterval);
+                }
+                
+                else {
+                    adjustedminute = (Math.round(minute / theRoundInterval) * theRoundInterval) + theRoundInterval; 
+                    System.err.println(adjustedminute);
+                }
+                
+                if (adjustedminute == 0) {
+                    this.adjustedtimestamp = thepunch
+                    .withMinute(adjustedminute)
+                    .withSecond(0)
+                    .withNano(0);
+                }
+                
+                else if((60 / adjustedminute) == 1 || (60 / adjustedminute) == 2 || (60 / adjustedminute) == 4 ) {
+                    this.adjustedtimestamp = thepunch
+                            .withHour(thepunch.getHour())
+                            .plusHours(1)
+                            .withMinute(0)
+                            .withSecond(0)     
+                            .withNano(0);
+                            
+                } 
+                else {
+                    this.adjustedtimestamp = thepunch
+                            .withMinute(adjustedminute)
+                            .withSecond(0)
+                            .withNano(0);
+                    
+                }
+                this.adjustmenttype  = PunchAdjustmentType.INTERVAL_ROUND;
+            }
+            
+            if (adjustedtimestamp == null) {
+                this.adjustedtimestamp = thepunch.withSecond(0).withNano(0);
+                this.adjustmenttype = PunchAdjustmentType.NONE;
+            }
     }
     
     public Integer getId() {
@@ -161,7 +256,11 @@ public class Punch {
         s.append('#');
         s.append(badge.getId()).append(" ");
         s.append(punchtype).append(": ");
-        s.append(originaltimestamp.format(formatter).toUpperCase());
+        //s.append(originaltimestamp.format(formatter).toUpperCase());
+        s.append(adjustedtimestamp.format(formatter)).append(" ");
+        
+        s = new StringBuilder(s.toString().toUpperCase());
+        s.append("(").append(adjustmenttype).append(")");
         
         return s.toString();
     }
