@@ -29,6 +29,7 @@ public class Punch {
         this.badge = badge;
         this.punchtype = punchtype;
         this.originaltimestamp = LocalDateTime.now();
+
         this.adjustedtimestamp = originaltimestamp;
         this.adjustmenttype = PunchAdjustmentType.NONE;
         
@@ -63,6 +64,21 @@ public class Punch {
         roundTimeAfter = punchTime;
         roundTimeAfter = roundTimeAfter.withHour(punchTime.getHour()).withMinute(theRoundInterval).withSecond(00);
         
+
+
+        
+
+        
+        LocalTime shiftStartInterval = theShiftStart.minusMinutes(theRoundInterval);
+        LocalTime shiftStartGrace = theShiftStart.plusMinutes(theGracePeriod);
+        LocalTime shiftStartDock = theShiftStart.minusMinutes(theDockPenalty);
+
+        LocalTime shiftStopInterval = theShiftStart.minusMinutes(theRoundInterval);
+        LocalTime shiftStopGrace = theShiftStart.plusMinutes(theGracePeriod);
+        LocalTime shiftStopDock = theShiftStart.minusMinutes(theDockPenalty);
+
+         adjustedtimestamp = null;
+         adjustmenttype = null;
         
         //WHICH RULES BOOLS
         boolean onTime = punchTime.equals(theShiftStart);
@@ -76,7 +92,7 @@ public class Punch {
         boolean isAfterLunchStart = punchTime.isAfter(theLunchStart);
         boolean isBeforeLunchEnd = punchTime.isBefore(theLunchEnd);
         boolean isAfterLunchEnd = punchTime.isAfter(theLunchEnd);
-        
+
         
         //SPECIAL CASE BOOLS
         boolean weekend = this.isWeekend(punchDay);
@@ -89,16 +105,27 @@ public class Punch {
         //System.err.println(weekend + " " + ifTimeOut);
         
         //START OF RULES
-        
         this.adjustedtimestamp = thepunch;
+     
         
         if (weekend || ifTimeOut) {
             thepunch = thepunch.withSecond(00);
             //System.err.println(thepunch);
         }
+        
         else {
             //START OF MAIN SET OF RULES
             
+            if (punchTime.isAfter(shiftStartGrace) && punchTime.isBefore(shiftStartDock.plusSeconds(1))) {
+                this.adjustedtimestamp = thepunch.with(shiftStartDock);
+                adjustmenttype = PunchAdjustmentType.SHIFT_DOCK;
+            }
+            
+            
+            else if (punchTime.isBefore(shiftStopGrace) && punchTime.isAfter(shiftStopDock.minusSeconds(1))) {
+                this.adjustedtimestamp = thepunch.with(shiftStopDock);
+                adjustmenttype = PunchAdjustmentType.SHIFT_DOCK;
+            }
             //SHIFT START
             if (isBeforeStart && withinRoundingUnder) {
                 
@@ -106,8 +133,8 @@ public class Punch {
                 this.adjustedtimestamp = this.adjustedtimestamp.withMinute(0);
                 this.adjustedtimestamp = this.adjustedtimestamp.withHour(this.adjustedtimestamp.getHour()+1);
                 this.adjustmenttype = PunchAdjustmentType.SHIFT_START;
-            }
-            
+                }
+
             //SHIFT STOP
             else if (isAfterEnd && withinRoundingOver) {
                 
@@ -136,16 +163,83 @@ public class Punch {
             
             else {
                 this.adjustedtimestamp = this.adjustedtimestamp.withSecond(00);
+                this.adjustmenttype = PunchAdjustmentType.NONE;
             }
         
             
-        
-        
+     
         }
         
         
+            if (adjustedtimestamp != null && adjustmenttype != null) {
+                return;
+            } 
+            if ((thepunch.getMinute() % 15) != 0) {
+                int adjustedminute;
+                int minute = thepunch.getMinute();
+                //System.out.println(minute);
+                
+                if ((minute % theRoundInterval) < (theRoundInterval) / 2) {
+                    adjustedminute = (Math.round(minute / theRoundInterval) * theRoundInterval);
+                    
+                    //System.out.println(theRoundInterval);
+                }
+                
+                else {
+                    adjustedminute = (Math.round(minute / theRoundInterval) * theRoundInterval) + theRoundInterval; 
+                    System.err.println(adjustedminute);
+                }
+                
+                if (adjustedminute == 0) {
+                    this.adjustedtimestamp = thepunch
+                    .withMinute(adjustedminute)
+                    .withSecond(0)
+                    .withNano(0);
+                }
+                
+                else if((60 / adjustedminute) == 2 || (60 / adjustedminute) == 4 ) {
+                    this.adjustedtimestamp = thepunch
+                            .withHour(thepunch.getHour())
+                            .plusHours(0)
+                            .withMinute(adjustedminute)
+                            .withSecond(0)     
+                            .withNano(0);
+                            
+                } 
+                
+                else if ((60.000 / adjustedminute) == 1) {
+                    System.out.println(adjustedminute);
+                    this.adjustedtimestamp = thepunch
+                            .withHour(thepunch.getHour())
+                            .plusHours(1)
+                            .withMinute(0)
+                            .withSecond(0)     
+                            .withNano(0);
+                }
+                
+                
+                
+                
+                
+                
+                
+                else {
+                    this.adjustedtimestamp = thepunch
+                            .withMinute(adjustedminute)
+                            .withSecond(0)
+                            .withNano(0);
+                    
+                }
+                this.adjustmenttype  = PunchAdjustmentType.INTERVAL_ROUND;
+            }
+            
+            if (adjustedtimestamp == null) {
+                this.adjustedtimestamp = thepunch.withSecond(0).withNano(0);
+                this.adjustmenttype = PunchAdjustmentType.NONE;
+            }
     }
     
+
     public Integer getId() {
         return id;
     }
@@ -218,6 +312,7 @@ public class Punch {
         s.append(this.punchtype).append(": ");
         s.append(this.adjustedtimestamp.format(formatter).toUpperCase());
         s.append(" (").append(this.adjustmenttype).append(")");
+
         
         return s.toString();
     }
