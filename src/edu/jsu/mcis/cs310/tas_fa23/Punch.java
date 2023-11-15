@@ -115,8 +115,11 @@ public class Punch {
         
         else {
             //START OF MAIN SET OF RULES
+
+             
             
-            if (punchTime.isAfter(shiftStartGrace) && punchTime.isBefore(shiftStartDock.plusSeconds(1))) {
+            
+             if (punchTime.isAfter(shiftStartGrace) && punchTime.isBefore(shiftStartDock.plusSeconds(1))) {
                 this.adjustedtimestamp = thepunch.with(shiftStartDock);
                 adjustmenttype = PunchAdjustmentType.SHIFT_DOCK;
             }
@@ -126,6 +129,7 @@ public class Punch {
                 this.adjustedtimestamp = thepunch.with(shiftStopDock);
                 adjustmenttype = PunchAdjustmentType.SHIFT_DOCK;
             }
+            
             //SHIFT START
             if (isBeforeStart && withinRoundingUnder) {
                 
