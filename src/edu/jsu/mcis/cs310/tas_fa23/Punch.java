@@ -74,10 +74,10 @@ public class Punch {
         
         
         LocalTime shiftStartGrace = theShiftStart.plusMinutes(theGracePeriod);
-        LocalTime shiftStartDock = theShiftStart.minusMinutes(theDockPenalty);
+        LocalTime shiftStartDock = theShiftStart.plusMinutes(theDockPenalty);
  
-        LocalTime shiftStopGrace = theShiftStart.plusMinutes(theGracePeriod);
-        LocalTime shiftStopDock = theShiftStart.minusMinutes(theDockPenalty);
+        LocalTime shiftStopGrace = theShiftEnd.minusMinutes(theGracePeriod);
+        LocalTime shiftStopDock = theShiftEnd.minusMinutes(theDockPenalty);
  
          adjustedtimestamp = null;
          adjustmenttype = null;
@@ -89,19 +89,23 @@ public class Punch {
         boolean withinRoundingMiddle = punchTime.isBefore(roundFromMiddle);
         boolean isAfterStart = punchTime.isAfter(theShiftStart);
         boolean isAfterEnd = punchTime.isAfter(theShiftEnd);
+        boolean isBeforeEnd = punchTime.isBefore(theShiftEnd);
         boolean isBeforeLunchStart = punchTime.isBefore(theLunchStart);
         boolean isAfterLunchStart = punchTime.isAfter(theLunchStart);
         boolean isBeforeLunchEnd = punchTime.isBefore(theLunchEnd);
         //System.out.println(withinRoundingUnder + "  " + punchTime + " " + roundTimeUnder);
         //System.out.println(isBeforeLunchEnd + "  " + theLunchEnd + " " + punchTime);
-        System.out.println(withinRoundingUnder + "  " + roundTimeUnder + " " + punchTime);
         boolean isAfterLunchEnd = punchTime.isAfter(theLunchEnd);
-        boolean isBeforeGrace = punchTime.isBefore(shiftStopGrace);
+        boolean isBeforeGraceStarting = punchTime.isBefore(shiftStartGrace);
+        boolean isBeforeGraceEnding = punchTime.isAfter(shiftStopGrace);
+        
  
         
         //SPECIAL CASE BOOLS
         boolean weekend = this.isWeekend(punchDay);
         boolean ifTimeOut = this.TimeOut();
+        
+        System.out.println("Testing " + thepunch + " " + isBeforeGraceEnding + " " + isBeforeGraceEnding);
         
         
         //TEST SHOWS BOTH SHIFT AND PUNCH TIME, NEXT TEST IS THE BOOLEANS FOR BEFORE AND AFTER [PUNCH IN/OUT TIME HERE]
@@ -119,8 +123,8 @@ public class Punch {
         
         else {
             //START OF MAIN SET OF RULES
-            
-            if (punchTime.isAfter(shiftStartGrace) && punchTime.isBefore(shiftStartDock.plusSeconds(1))) {
+            //SHIFT DOCK
+            if (punchTime.isAfter(shiftStartGrace) && punchTime.isBefore(shiftStartDock)) {
                 this.adjustedtimestamp = thepunch.with(shiftStartDock);
                 adjustmenttype = PunchAdjustmentType.SHIFT_DOCK;
             }
@@ -130,17 +134,43 @@ public class Punch {
                 adjustmenttype = PunchAdjustmentType.SHIFT_DOCK;
             }
             //SHIFT START
-            if (isBeforeStart && withinRoundingUnder || isAfterStart && isBeforeGrace) {
+            
+            
+            if (isBeforeStart && withinRoundingUnder) {
                 
                 this.adjustedtimestamp = this.adjustedtimestamp.withSecond(00);
                 this.adjustedtimestamp = this.adjustedtimestamp.withMinute(0);
                 this.adjustedtimestamp = this.adjustedtimestamp.withHour(this.adjustedtimestamp.getHour()+1);
                 this.adjustmenttype = PunchAdjustmentType.SHIFT_START;
                 }
+            
+            else if (isAfterStart && isBeforeGraceStarting) {
+                
+                this.adjustedtimestamp = this.adjustedtimestamp.withSecond(00);
+                this.adjustedtimestamp = this.adjustedtimestamp.withMinute(0);
+                this.adjustedtimestamp = this.adjustedtimestamp.withHour(this.adjustedtimestamp.getHour());
+                this.adjustmenttype = PunchAdjustmentType.SHIFT_START;
+                }
  
             //SHIFT STOP
-            else if (isAfterEnd && withinRoundingUnder || isAfterEnd && withinRoundingMiddle) {
+            else if (isAfterEnd && withinRoundingUnder) {
                 
+                this.adjustedtimestamp = this.adjustedtimestamp.withSecond(00);
+                this.adjustedtimestamp = this.adjustedtimestamp.withMinute(theShiftEnd.getMinute());
+                this.adjustedtimestamp = this.adjustedtimestamp.withHour(this.adjustedtimestamp.getHour());
+                this.adjustmenttype = PunchAdjustmentType.SHIFT_STOP;
+                
+            }
+            else if (isAfterEnd && withinRoundingMiddle) {
+                
+                this.adjustedtimestamp = this.adjustedtimestamp.withSecond(00);
+                this.adjustedtimestamp = this.adjustedtimestamp.withMinute(theShiftEnd.getMinute());
+                this.adjustedtimestamp = this.adjustedtimestamp.withHour(this.adjustedtimestamp.getHour());
+                this.adjustmenttype = PunchAdjustmentType.SHIFT_STOP;
+                
+            }
+            
+            else if (isBeforeEnd && isBeforeGraceEnding) {
                 this.adjustedtimestamp = this.adjustedtimestamp.withSecond(00);
                 this.adjustedtimestamp = this.adjustedtimestamp.withMinute(theShiftEnd.getMinute());
                 this.adjustedtimestamp = this.adjustedtimestamp.withHour(this.adjustedtimestamp.getHour());
@@ -148,8 +178,8 @@ public class Punch {
             }
             
             //LUNCH START
-            else if ((isBeforeLunchStart && withinRoundingUnder) || (isAfterLunchStart && withinRoundingOver)) {
-            
+            else if ((isAfterLunchStart && withinRoundingOver) && !(isAfterLunchEnd)) {
+
                 this.adjustedtimestamp = this.adjustedtimestamp.withSecond(00);
                 this.adjustedtimestamp = this.adjustedtimestamp.withMinute(0);
                 this.adjustedtimestamp = this.adjustedtimestamp.withHour(this.adjustedtimestamp.getHour());
@@ -164,6 +194,10 @@ public class Punch {
                 this.adjustmenttype = PunchAdjustmentType.LUNCH_STOP;
             }
             
+            if (adjustedtimestamp != null && adjustmenttype != null) {
+                return;
+            }
+            
             else {
                 this.adjustedtimestamp = this.adjustedtimestamp.withSecond(00);
                 this.adjustmenttype = PunchAdjustmentType.NONE;
@@ -174,10 +208,10 @@ public class Punch {
         }
         
         
-            if (adjustedtimestamp != null && adjustmenttype != null) {
+           /* if (adjustedtimestamp != null && adjustmenttype != null) {
                 return;
-            } 
-            if ((thepunch.getMinute() % 15) != 0) {
+            } */
+            if (((thepunch.getMinute() % 15) != 0)) {
                 int adjustedminute;
                 int minute = thepunch.getMinute();
                 
