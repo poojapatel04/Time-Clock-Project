@@ -142,7 +142,89 @@ public class JSONTest {
         catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    
+        @Test
+    public void testJSONShift2Weekend() {
 
+        try {
+
+            BadgeDAO badgeDAO = daoFactory.getBadgeDAO();
+
+            PunchDAO punchDAO = daoFactory.getPunchDAO();
+            ShiftDAO shiftDAO = daoFactory.getShiftDAO();
+
+            /* Expected JSON Data */
+            String expectedJSON = "[{\"originaltimestamp\":\"SAT 08\\/11\\/2018 05:58:46\",\"badgeid\":\"ADD650A8\",\"adjustedtimestamp\":\"SAT 08\\/11\\/2018 06:00:00\",\"adjustmenttype\":\"Interval Round\",\"terminalid\":\"103\",\"id\":\"1100\",\"punchtype\":\"CLOCK IN\"},{\"originaltimestamp\":\"SAT 08\\/11\\/2018 22:11:30\",\"badgeid\":\"ADD650A8\",\"adjustedtimestamp\":\"SAT 08\\/11\\/2018 22:15:00\",\"adjustmenttype\":\"Interval Round\",\"terminalid\":\"0\",\"id\":\"1168\",\"punchtype\":\"TIME OUT\"}]";
+
+            ArrayList<HashMap<String, String>> expected = (ArrayList) Jsoner.deserialize(expectedJSON);
+
+            /* Get Punch/Badge/Shift Objects */
+            Punch p = punchDAO.find(1100);
+            Badge b = badgeDAO.find(p.getBadge().getId());
+            Shift s = shiftDAO.find(b);
+
+            /* Get/Adjust Daily Punch List */
+            ArrayList<Punch> dailypunchlist = punchDAO.list(b, p.getOriginaltimestamp().toLocalDate());
+
+            for (Punch punch : dailypunchlist) {
+                punch.adjust(s);
+            }
+
+            /* JSON Conversion */
+            String actualJSON = DAOUtility.getPunchListAsJSON(dailypunchlist);
+
+            ArrayList<HashMap<String, String>> actual = (ArrayList) Jsoner.deserialize(actualJSON);
+
+            /* Compare to Expected JSON */
+            assertEquals(expected, actual);
+
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+        
+        @Test
+    public void testJSONShift3Weekday() {
+
+        try {
+
+            BadgeDAO badgeDAO = daoFactory.getBadgeDAO();
+            PunchDAO punchDAO = daoFactory.getPunchDAO();
+            ShiftDAO shiftDAO = daoFactory.getShiftDAO();
+
+            /* Expected JSON Data */
+            String expectedJSON = "[{\"originaltimestamp\":\"WED 08\\/01\\/2018 05:49:24\",\"badgeid\":\"4E6E296E\",\"adjustedtimestamp\":\"WED 08\\/01\\/2018 05:45:00\",\"adjustmenttype\":\"Interval Round\",\"terminalid\":\"105\",\"id\":\"147\",\"punchtype\":\"CLOCK IN\"},{\"originaltimestamp\":\"TUE 08\\/01\\/2018 15:38:32\",\"badgeid\":\"4E6E296E\",\"adjustedtimestamp\":\"WED 08\\/01\\/2018 15:30:00\",\"adjustmenttype\":\"None\",\"terminalid\":\"105\",\"id\":\"237\",\"punchtype\":\"CLOCK OUT\"}]";
+
+            ArrayList<HashMap<String, String>> expected = (ArrayList) Jsoner.deserialize(expectedJSON);
+
+            /* Get Punch/Badge/Shift Objects */
+            Punch p = punchDAO.find(147);
+            Badge b = badgeDAO.find(p.getBadge().getId());
+            Shift s = shiftDAO.find(b);
+
+            /* Get/Adjust Daily Punch List */
+            ArrayList<Punch> dailypunchlist = punchDAO.list(b, p.getOriginaltimestamp().toLocalDate());
+
+            for (Punch punch : dailypunchlist) {
+                punch.adjust(s);
+            }
+
+            /* JSON Conversion */
+            String actualJSON = DAOUtility.getPunchListAsJSON(dailypunchlist);
+
+            ArrayList<HashMap<String, String>> actual = (ArrayList) Jsoner.deserialize(actualJSON);
+
+            /* Compare to Expected JSON */
+            assertEquals(expected, actual);
+
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
     }
 
-}
+

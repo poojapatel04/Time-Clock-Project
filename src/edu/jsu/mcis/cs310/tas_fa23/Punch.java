@@ -105,7 +105,7 @@ public class Punch {
         boolean weekend = this.isWeekend(punchDay);
         boolean ifTimeOut = this.TimeOut();
         
-        System.out.println("Testing " + thepunch + " " + isBeforeGraceEnding + " " + isBeforeGraceEnding);
+        //System.out.println("Testing " + thepunch + " " + isBeforeGraceEnding + " " + isBeforeGraceEnding);
         
         
         //TEST SHOWS BOTH SHIFT AND PUNCH TIME, NEXT TEST IS THE BOOLEANS FOR BEFORE AND AFTER [PUNCH IN/OUT TIME HERE]
