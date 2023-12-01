@@ -64,7 +64,7 @@ public final class DAOUtility {
             }
             
             if (dailypunchlist.isEmpty()) {
-                System.out.println("hehe");
+                System.out.println("test");
 
             }
             
