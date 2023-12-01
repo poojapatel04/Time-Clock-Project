@@ -7,7 +7,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import com.github.cliftonlabs.json_simple.*;
+import edu.jsu.mcis.cs310.tas_fa23.EventType;
 import edu.jsu.mcis.cs310.tas_fa23.Punch;
+import edu.jsu.mcis.cs310.tas_fa23.Shift;
 
 /**
  * 
@@ -39,6 +41,40 @@ public final class DAOUtility {
         String json = Jsoner.serialize(jsonData.toString());
         return json;
 
+    }
+    
+    public static int calculateTotalMinutes(ArrayList<Punch> dailypunchlist, Shift shift) {
+        
+        LocalTime theShiftStart = shift.getShiftstart();
+        LocalTime theShiftEnd = shift.getShiftstop();
+        LocalTime theLunchStart = shift.getLunchstart();
+        LocalTime theLunchEnd = shift.getLunchstop();
+        
+        Iterator<Punch> iterator = dailypunchlist.iterator();
+        
+        
+        //TODO: CHANGE while loop to a loop that just removes the elements until nothing is left
+        while (iterator.hasNext()) {
+            Punch current = iterator.next();
+            current.adjust(shift);
+            dailypunchlist.remove(current);
+            
+            if (current.getPunchtype().equals(EventType.TIME_OUT)) {
+                return 0;
+            }
+            
+            if (dailypunchlist.isEmpty()) {
+                System.out.println("hehe");
+
+            }
+            
+            System.out.println(current.printAdjusted() + "\n");
+            
+            //Four Cases: No Clock Out, Time Out, Normal, and Only Clock In and Out
+            
+        }
+        
+        return 0;
     }
 }
  
